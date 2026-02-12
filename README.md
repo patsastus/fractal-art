@@ -33,19 +33,21 @@ The explanations below will contains some math notations that everyone might not
 
 With notation out of the way, here's a quick summary of the arithmetic you can do with complex numbers, starting with the most important one:
 
-- $\mathrm{i} \cdot \mathrm{i} = -1$
-- $z_{1} + z_{2} = (x_{1} + x_{2}) + (y_{1}+y_{2})\mathrm{i}$
-- $z_{1} - z_{2} = (x_{1} - x_{2}) + (y_{1}-y_{2})\mathrm{i}$
-- $z_{1} \cdot z_{2} = (x_{1} \cdot x_{2} - y_{1} \cdot y_{2}) + (x_{1} \cdot y_{2} + y_{1} \cdot x_{2}) \mathrm{i}$
-- $
-  \displaystyle
-  \begin{aligned}
-  \frac{z_1}{z_2} &= \frac{a + bi}{c + di} \\
-  &= \frac{a + bi}{c + di} \cdot \frac{c - di}{c - di} \\
-  &= \frac{(ac + bd) + (bc - ad)i}{c^2 + d^2} \\
-  &= \left( \frac{ac + bd}{c^2 + d^2} \right) + \left( \frac{bc - ad}{c^2 + d^2} \right)i
-  \end{aligned}
-  $
+- complex identity: $\mathrm{i} \cdot \mathrm{i} = -1$
+- addition: $z_{1} + z_{2} = (x_{1} + x_{2}) + (y_{1}+y_{2})\mathrm{i}$
+- subtraction: $z_{1} - z_{2} = (x_{1} - x_{2}) + (y_{1}-y_{2})\mathrm{i}$
+- multiplication: $z_{1} \cdot z_{2} = (x_{1} \cdot x_{2} - y_{1} \cdot y_{2}) + (x_{1} \cdot y_{2} + y_{1} \cdot x_{2}) \mathrm{i}$
+- division:
+
+$$
+\displaystyle
+\begin{aligned}
+\frac{z_1}{z_2} &= \frac{a + bi}{c + di} \\
+&= \frac{a + bi}{c + di} \cdot \frac{c - di}{c - di} \\
+&= \frac{(ac + bd) + (bc - ad)i}{c^2 + d^2} \\
+&= \left( \frac{ac + bd}{c^2 + d^2} \right) + \left( \frac{bc - ad}{c^2 + d^2} \right)i
+\end{aligned}
+$$
 
 As you can see, addition and subtraction are easy, multiplication is manageable, and division is very complicated. But in the end, it boils down to addition, subtraction and multiplication of real numbers, so it's enough to implement once and forget about it after, and just treat complex numbers exactly as we would a `float` or an `int`. Luckily we only need addition, subtraction and multiplication in most cases. With those functions in hand, we can go about visualizing our fractal sets.
 
