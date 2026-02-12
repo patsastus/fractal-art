@@ -75,11 +75,16 @@ void	write_instructions(void)
 	const char	*ex2 = "\t\t./fractol j -0.4 0.6\n";
 	const char	*ex3 = "Example:\t./fractol n\n";
 
-	write(1, message, ft_strlen(message));
-	write(1, format, ft_strlen(format));
-	write(1, ex1, ft_strlen(ex1));
-	write(1, ex2, ft_strlen(ex2));
-	write(1, ex3, ft_strlen(ex3));
+	if (write(1, message, ft_strlen(message)) == -1)
+		return;
+	if (write(1, format, ft_strlen(format)) == -1)
+		return;
+	if (write(1, ex1, ft_strlen(ex1)) == -1)
+		return;
+	if (write(1, ex2, ft_strlen(ex2)) == -1)
+		return;
+	if (write(1, ex3, ft_strlen(ex3)) == -1)
+		return;
 }
 
 //make a sawtooth pattern: 2 peaks 2 valleys.
