@@ -4,6 +4,7 @@
 #include "complex.hpp"
 #include "fractal.hpp"
 #include "renderer.hpp"
+#include "../gpu/gpu_renderer.cuh"
 #include <memory>
 #include <cstdint>
 
@@ -29,11 +30,14 @@ private:
     mlx_image_t* img_   = nullptr;
     mlx_image_t* scale_ = nullptr;
     mlx_image_t* text_  = nullptr;
+    mlx_image_t* time_text_ = nullptr;
 
     // Domain objects
     std::unique_ptr<Fractal> fractal_;
     Anchor    anchor_;
     Renderer  renderer_;
+    std::unique_ptr<GpuRenderer> gpu_renderer_;
+    bool      use_gpu_ = true;
 
     // View state
     double   zoom_factor_ = 1.1;

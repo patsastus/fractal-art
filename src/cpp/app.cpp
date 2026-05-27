@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+#include <chrono>
 
 // ============================================================================
 // Static callback trampolines
@@ -44,6 +45,7 @@ App::App(int argc, char** argv) {
     fractal_->init_colors();
     init_mlx();
     init_anchor();
+    gpu_renderer_ = std::make_unique<GpuRenderer>(img_w_, img_h_);
 }
 
 App::~App() {
@@ -85,10 +87,11 @@ void App::init_mlx() {
     uint32_t scale_h = (img_h_ / fractal_->colors.size()) * fractal_->colors.size();
     scale_ = mlx_new_image(mlx_, OFFS / 2, scale_h);
 
-    const char* instructions = "View control: arrow keys, 'r' to reset. Loop colors: 'a'";
+    const char* instructions = "View control: arrow keys, 'r' to reset. Loop colors: 'a', GPU toggle: 'g'";
     text_ = mlx_put_string(mlx_, instructions, OFFS, img_h_ + OFFS * 5 / 4);
+    time_text_ = mlx_put_string(mlx_, "Mode: GPU | Time: -- ms", OFFS, OFFS / 2);
 
-    if (!img_ || !scale_ || !text_)
+    if (!img_ || !scale_ || !text_ || !time_text_)
         throw std::runtime_error("Failed to create images");
 }
 
@@ -147,6 +150,9 @@ void App::handle_key(mlx_key_data_t keydata) {
         case MLX_KEY_A:
             fractal_->looping = !fractal_->looping;
             return;
+        case MLX_KEY_G:
+            use_gpu_ = !use_gpu_;
+            break;
         case MLX_KEY_R:
             reset_view();
             break;
@@ -217,7 +223,30 @@ void App::reset_view() {
 // ============================================================================
 
 void App::draw() {
-    renderer_.draw(img_, *fractal_, anchor_, img_w_, img_h_);
+    auto start = std::chrono::high_resolution_clock::now();
+
+    if (use_gpu_ && gpu_renderer_) {
+        if (auto m = dynamic_cast<Mandelbrot*>(fractal_.get())) {
+            gpu_renderer_->render_mandelbrot(anchor_, *m);
+        } else if (auto j = dynamic_cast<Julia*>(fractal_.get())) {
+            gpu_renderer_->render_julia(anchor_, *j);
+        } else if (auto n = dynamic_cast<Newton*>(fractal_.get())) {
+            gpu_renderer_->render_newton(anchor_, *n);
+        }
+        gpu_renderer_->copy_to_image(img_);
+    } else {
+        renderer_.draw(img_, *fractal_, anchor_, img_w_, img_h_);
+    }
+
+    auto end = std::chrono::high_resolution_clock::now();
+    double ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0;
+
+    if (time_text_) {
+        mlx_delete_image(mlx_, time_text_);
+    }
+    char buf[128];
+    snprintf(buf, sizeof(buf), "Mode: %s | Time: %.2f ms", use_gpu_ ? "GPU" : "CPU", ms);
+    time_text_ = mlx_put_string(mlx_, buf, OFFS, OFFS / 2);
 }
 
 void App::draw_scale() {
