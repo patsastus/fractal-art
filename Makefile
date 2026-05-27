@@ -11,26 +11,16 @@
 # **************************************************************************** #
 
 NAME		:= fractol
-BONUS		:= .bonus
 
-SRC_DIR		:= srcs
+SRC_DIR		:= src/c
 OBJ_DIR		:= objs
-BONUS_DIR	:= bonus
-B_OBJ_DIR	:= bonus_objs
 INC_DIR		:= include
 
-SRCS		:=	main.c	utils.c	hooks.c	init.c	complex.c	mandelbrot.c\
-			visuals.c	julia.c
+SRCS		:= complex.c init.c main.c newton.c utils.c hooks.c julia.c mandelbrot.c newton_utils.c visuals.c
 
-B_SRCS		:= complex_bonus.c	init_bonus.c	main_bonus.c	newton_bonus.c\
-			  utils_bonus.c	hooks_bonus.c	 julia_bonus.c	mandelbrot_bonus.c\
-			  newton_utils_bonus.c	visuals_bonus.c
-
-HEADER		:=	fractol.h
-B_HEADER	:=	fractol_bonus.h
+HEADER		:= fractol.h
 
 OBJS		:= $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
-B_OBJS		:= $(addprefix $(B_OBJ_DIR)/, $(B_SRCS:.c=.o))
 
 
 CC			:= cc
@@ -53,21 +43,13 @@ $(NAME):			$(MLX) $(OBJ_DIR) $(OBJS) $(INC_DIR)/$(HEADER)
 $(OBJ_DIR)/%.o:		$(SRC_DIR)/%.c $(INC_DIR)/$(HEADER) $(MLX) 
 		$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
-$(B_OBJ_DIR)/%.o:	$(BONUS_DIR)/%.c $(INC_DIR)/$(B_HEADER) $(MLX) 
-		$(CC) $(CFLAGS) $(INC) -c $< -o $@
-
 $(MLX):		
-		git clone -q --depth 1 --branch v2.4.1 --single-branch\
-			https://github.com/codam-coding-college/MLX42.git
+		@if [ ! -d "$(MLX_BPATH)" ]; then \
+			git clone -q --depth 1 --branch v2.4.1 --single-branch \
+			https://github.com/codam-coding-college/MLX42.git; \
+		fi
 		cd $(MLX_BPATH)	&& cmake -B build
 		$(MAKE) -C $(MLX_PATH)
-
-$(BONUS):			$(MLX) $(B_OBJ_DIR) $(B_OBJS) $(INC_DIR)/$(B_HEADER)
-		$(CC) $(CFLAGS) $(INC) $(B_OBJS) $(LIBS) -o $(NAME)
-		touch $(BONUS)
-
-$(B_OBJ_DIR):
-		@mkdir -p $(B_OBJ_DIR)
 
 $(OBJ_DIR):
 		@mkdir -p $(OBJ_DIR)
@@ -75,16 +57,14 @@ $(OBJ_DIR):
 all:				$(NAME)
 
 clean:                                   
-		$(RM) $(OBJS) $(B_OBJS)
+		$(RM) $(OBJS)
                                          
 fclean:			clean 
-		$(RM) $(NAME) $(BONUS)
+		$(RM) $(NAME)
 
 mlxclean:		
-		$(RM) -r $(MLX42)
+		$(RM) -r $(MLX_BPATH)
 
 re:				fclean all
 
-bonus:				$(BONUS)
-
-.PHONY:		all clean fclean re mlxclean bonus
+.PHONY:		all clean fclean re mlxclean

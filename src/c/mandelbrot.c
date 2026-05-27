@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <fractol_bonus.h>
+#include <fractol.h>
 
 /*
 	iterates the complex function t = t^2 + z starting at t=(0,0) until the 

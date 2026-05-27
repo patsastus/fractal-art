@@ -8,17 +8,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_subdirectory(MLX42)
 
 add_executable(fractol
-    src/main.cpp
-    src/complex.cpp
-    src/fractal.cpp
-    src/renderer.cpp
-    src/app.cpp
-    src/utils.cpp
+    src/cpp/main.cpp
+    src/cpp/complex.cpp
+    src/cpp/fractal.cpp
+    src/cpp/renderer.cpp
+    src/cpp/app.cpp
+    src/cpp/utils.cpp
 )
 
 target_link_libraries(fractol PRIVATE mlx42 glfw m dl z pthread)
 target_include_directories(fractol PRIVATE
-    src/
+    src/cpp/
     MLX42/include/MLX42
 )
 target_compile_options(fractol PRIVATE -O3 -ffast-math -Wall -Wextra)

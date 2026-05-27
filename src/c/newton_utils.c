@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <fractol_bonus.h>
+#include <fractol.h>
 
 /*
 	the complex function z^3 - 1

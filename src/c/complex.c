@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <fractol_bonus.h>
+#include <fractol.h>
 
 void	complex_mult(t_complex *res, t_complex *one, t_complex *two)
 {

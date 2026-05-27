@@ -1,5 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   main_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
@@ -10,10 +8,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <fractol_bonus.h>
+#include <fractol.h>
 
 /*
-	Parse input, initialize data structures, set hooks, and then draw the first 
+	Parse input, initialize data structures, set hooks, and then draw the first
 	image before starting the MLX-loop
 */
 int	main(int argc, char **argv)
@@ -42,7 +40,7 @@ int	main(int argc, char **argv)
 	return (0);
 }
 
-//something went wrong, exit after freeing 
+//something went wrong, exit after freeing
 void	ft_exit(void *param)
 {
 	t_data	*data;

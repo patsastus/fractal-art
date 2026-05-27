@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   utils_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nraatika <nraatika@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 11:02:55 by nraatika          #+#    #+#             */
-/*   Updated: 2025/06/16 16:20:42 by nraatika         ###   ########.fr       */
+/*   Updated: 2025/06/16 17:01:48 by nraatika         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,11 @@ double	string_to_double(char *s)
 	return (ret * sign);
 }
 
+/*
+	Check that input argument is of required format: optional leading minus,
+	followed by a digit between 0 and 2, followed by a dot, followed by 1+ 
+	digits until end of string.
+*/
 int	check_input_arg(char *s)
 {
 	if (s && *s == '-')
@@ -65,9 +70,10 @@ int	check_input_arg(char *s)
 void	write_instructions(void)
 {
 	const char	*message = "Please provide valid input:\n";
-	const char	*format = "./fractol [jm] -*[0-2].[0-9]* -*[0-2].[0-9]*\n";
+	const char	*format = "./fractol [jmn] -*[0-2].[0-9]* -*[0-2].[0-9]*\n";
 	const char	*ex1 = "Example:\t./fractol m\n";
 	const char	*ex2 = "\t\t./fractol j -0.4 0.6\n";
+	const char	*ex3 = "Example:\t./fractol n\n";
 
 	if (write(1, message, ft_strlen(message)) == -1)
 		return;
@@ -76,6 +82,8 @@ void	write_instructions(void)
 	if (write(1, ex1, ft_strlen(ex1)) == -1)
 		return;
 	if (write(1, ex2, ft_strlen(ex2)) == -1)
+		return;
+	if (write(1, ex3, ft_strlen(ex3)) == -1)
 		return;
 }
 
