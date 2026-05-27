@@ -1,0 +1,225 @@
+#include "app.hpp"
+#include "utils.hpp"
+#include <cmath>
+#include <iostream>
+#include <stdexcept>
+
+// ============================================================================
+// Static callback trampolines
+// ============================================================================
+
+void App::on_key(mlx_key_data_t keydata, void* param) {
+    static_cast<App*>(param)->handle_key(keydata);
+}
+
+void App::on_scroll(double xd, double yd, void* param) {
+    (void)xd;
+    auto* app = static_cast<App*>(param);
+    int32_t x, y;
+    mlx_get_mouse_pos(app->mlx_, &x, &y);
+    app->handle_scroll(yd, x, y);
+}
+
+void App::on_loop(void* param) {
+    auto* app = static_cast<App*>(param);
+    app->frame_counter_++;
+    if (app->frame_counter_ % 5 == 0 && app->fractal_->looping) {
+        app->renderer_.cycle_colors(*app->fractal_);
+        app->draw_scale();
+        app->draw();
+    }
+}
+
+void App::on_close(void* param) {
+    auto* app = static_cast<App*>(param);
+    mlx_close_window(app->mlx_);
+}
+
+// ============================================================================
+// Construction / Destruction
+// ============================================================================
+
+App::App(int argc, char** argv) {
+    fractal_ = parse_and_create(argc, argv);
+    fractal_->init_colors();
+    init_mlx();
+    init_anchor();
+}
+
+App::~App() {
+    if (mlx_) {
+        mlx_terminate(mlx_);
+    }
+}
+
+// ============================================================================
+// Run
+// ============================================================================
+
+void App::run() {
+    if (mlx_image_to_window(mlx_, img_, OFFS, OFFS) == -1)
+        throw std::runtime_error("Failed to put image to window");
+    if (mlx_image_to_window(mlx_, scale_, OFFS / 4, OFFS) == -1)
+        throw std::runtime_error("Failed to put scale to window");
+
+    mlx_scroll_hook(mlx_, on_scroll, this);
+    mlx_key_hook(mlx_, on_key, this);
+    mlx_close_hook(mlx_, on_close, this);
+    mlx_loop_hook(mlx_, on_loop, this);
+
+    draw_scale();
+    draw();
+    mlx_loop(mlx_);
+}
+
+// ============================================================================
+// Init helpers
+// ============================================================================
+
+void App::init_mlx() {
+    mlx_ = mlx_init(width_, height_, "Fractol", false);
+    if (!mlx_)
+        throw std::runtime_error("mlx_init failed");
+
+    img_ = mlx_new_image(mlx_, img_w_, img_h_);
+    uint32_t scale_h = (img_h_ / fractal_->colors.size()) * fractal_->colors.size();
+    scale_ = mlx_new_image(mlx_, OFFS / 2, scale_h);
+
+    const char* instructions = "View control: arrow keys, 'r' to reset. Loop colors: 'a'";
+    text_ = mlx_put_string(mlx_, instructions, OFFS, img_h_ + OFFS * 5 / 4);
+
+    if (!img_ || !scale_ || !text_)
+        throw std::runtime_error("Failed to create images");
+}
+
+void App::init_anchor() {
+    uint32_t scale = RESOLUTION - 2 * OFFS;
+    anchor_.x = scale / 2;
+    anchor_.y = scale / 2;
+    anchor_.px_step = fractal_->escape_radius * 3.0 / scale;
+    anchor_.value = {0.0, 0.0};
+}
+
+std::unique_ptr<Fractal> App::parse_and_create(int argc, char** argv) {
+    if (argc < 2) {
+        print_usage();
+        throw std::runtime_error("Insufficient arguments");
+    }
+
+    char type = argv[1][0];
+    if (type == 'm' || type == 'M') {
+        return std::make_unique<Mandelbrot>();
+    }
+    else if (type == 'j' || type == 'J') {
+        if (argc != 4) {
+            print_usage();
+            throw std::runtime_error("Julia requires exactly 2 parameters (re, im)");
+        }
+        auto julia = std::make_unique<Julia>();
+        double re, im;
+        if (!parse_double(argv[2], re) || !parse_double(argv[3], im)) {
+            print_usage();
+            throw std::runtime_error("Invalid Julia parameters");
+        }
+        julia->c = Complex(re, im);
+        return julia;
+    }
+    else if (type == 'n' || type == 'N') {
+        return std::make_unique<Newton>();
+    }
+    else {
+        print_usage();
+        throw std::runtime_error("Unknown fractal type: " + std::string(1, type));
+    }
+}
+
+// ============================================================================
+// Input handling
+// ============================================================================
+
+void App::handle_key(mlx_key_data_t keydata) {
+    if (keydata.action != MLX_PRESS) return;
+
+    switch (keydata.key) {
+        case MLX_KEY_ESCAPE:
+            mlx_close_window(mlx_);
+            return;
+        case MLX_KEY_A:
+            fractal_->looping = !fractal_->looping;
+            return;
+        case MLX_KEY_R:
+            reset_view();
+            break;
+        case MLX_KEY_LEFT:  pan(Direction::Left);  break;
+        case MLX_KEY_RIGHT: pan(Direction::Right); break;
+        case MLX_KEY_UP:    pan(Direction::Up);    break;
+        case MLX_KEY_DOWN:  pan(Direction::Down);  break;
+        default: return;
+    }
+    draw();
+}
+
+void App::handle_scroll(double ydelta, int32_t x, int32_t y) {
+    zoom(ydelta, x, y);
+    draw();
+}
+
+void App::pan(Direction dir) {
+    uint32_t xp = img_w_ / 2;
+    uint32_t yp = img_h_ / 2;
+
+    switch (dir) {
+        case Direction::Left:  xp -= img_w_ / 10; break;
+        case Direction::Right: xp += img_w_ / 10; break;
+        case Direction::Up:    yp -= img_h_ / 10; break;
+        case Direction::Down:  yp += img_h_ / 10; break;
+    }
+
+    Complex z = Complex::from_pixel(xp, yp, anchor_);
+    anchor_.value = z;
+    anchor_.x = img_w_ / 2;
+    anchor_.y = img_h_ / 2;
+}
+
+void App::zoom(double delta, int32_t x, int32_t y) {
+    uint32_t xp, yp;
+
+    if (static_cast<uint32_t>(x) > OFFS && static_cast<uint32_t>(x) < OFFS + img_w_)
+        xp = x - OFFS;
+    else
+        xp = img_w_ / 2;
+
+    if (static_cast<uint32_t>(y) > OFFS && static_cast<uint32_t>(y) < OFFS + img_h_)
+        yp = y - OFFS;
+    else
+        yp = img_h_ / 2;
+
+    if (xp != static_cast<uint32_t>(anchor_.x) ||
+        yp != static_cast<uint32_t>(anchor_.y)) {
+        Complex z = Complex::from_pixel(xp, yp, anchor_);
+        anchor_.value = z;
+        anchor_.x = xp;
+        anchor_.y = yp;
+    }
+
+    if (delta > 0 && anchor_.px_step < (HUGE_VAL / 1000))
+        anchor_.px_step *= zoom_factor_;
+    if (delta < 0 && anchor_.px_step > 1e-150)
+        anchor_.px_step *= (2.0 - zoom_factor_);
+}
+
+void App::reset_view() {
+    init_anchor();
+}
+
+// ============================================================================
+// Drawing
+// ============================================================================
+
+void App::draw() {
+    renderer_.draw(img_, *fractal_, anchor_, img_w_, img_h_);
+}
+
+void App::draw_scale() {
+    renderer_.draw_scale(scale_, *fractal_, img_h_);
+}
