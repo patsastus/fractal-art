@@ -4,6 +4,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <chrono>
+#include <vector>
+#include <string>
 
 // ============================================================================
 // Static callback trampolines
@@ -109,31 +111,60 @@ std::unique_ptr<Fractal> App::parse_and_create(int argc, char** argv) {
         throw std::runtime_error("Insufficient arguments");
     }
 
-    char type = argv[1][0];
+    uint32_t custom_iters = 0;
+    std::vector<std::string> args;
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "-i" || arg == "--iters") {
+            if (i + 1 < argc) {
+                custom_iters = std::stoul(argv[++i]);
+            } else {
+                print_usage();
+                throw std::runtime_error("Missing value for iterations flag");
+            }
+        } else {
+            args.push_back(arg);
+        }
+    }
+
+    if (args.empty()) {
+        print_usage();
+        throw std::runtime_error("Insufficient arguments");
+    }
+
+    char type = args[0][0];
+    std::unique_ptr<Fractal> f;
+    
     if (type == 'm' || type == 'M') {
-        return std::make_unique<Mandelbrot>();
+        f = std::make_unique<Mandelbrot>();
     }
     else if (type == 'j' || type == 'J') {
-        if (argc != 4) {
+        if (args.size() != 3) {
             print_usage();
             throw std::runtime_error("Julia requires exactly 2 parameters (re, im)");
         }
         auto julia = std::make_unique<Julia>();
         double re, im;
-        if (!parse_double(argv[2], re) || !parse_double(argv[3], im)) {
+        if (!parse_double(args[1], re) || !parse_double(args[2], im)) {
             print_usage();
             throw std::runtime_error("Invalid Julia parameters");
         }
         julia->c = Complex(re, im);
-        return julia;
+        f = std::move(julia);
     }
     else if (type == 'n' || type == 'N') {
-        return std::make_unique<Newton>();
+        f = std::make_unique<Newton>();
     }
     else {
         print_usage();
-        throw std::runtime_error("Unknown fractal type: " + std::string(1, type));
+        throw std::runtime_error("Unknown fractal type: " + args[0]);
     }
+
+    if (custom_iters > 0) {
+        f->max_iters = custom_iters;
+    }
+    
+    return f;
 }
 
 // ============================================================================

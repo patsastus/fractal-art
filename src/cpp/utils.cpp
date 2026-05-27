@@ -24,8 +24,9 @@ bool parse_double(const std::string& s, double& out) {
 
 void print_usage() {
     std::cerr << "Please provide valid input:\n"
-              << "./fractol [jmn] <re> <im>\n"
+              << "./fractol [jmn] [args...] [-i <iterations>]\n"
               << "Example:\t./fractol m\n"
               << "\t\t./fractol j -0.4 0.6\n"
-              << "\t\t./fractol n\n";
+              << "\t\t./fractol n\n"
+              << "\t\t./fractol m -i 500\n";
 }
