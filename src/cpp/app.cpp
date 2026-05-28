@@ -68,6 +68,7 @@ void App::run() {
     mlx_scroll_hook(mlx_, on_scroll, this);
     mlx_key_hook(mlx_, on_key, this);
     mlx_close_hook(mlx_, on_close, this);
+    mlx_resize_hook(mlx_, on_resize, this);
     mlx_loop_hook(mlx_, on_loop, this);
 
     draw_scale();
@@ -80,9 +81,11 @@ void App::run() {
 // ============================================================================
 
 void App::init_mlx() {
-    mlx_ = mlx_init(width_, height_, "Fractol", false);
+    mlx_ = mlx_init(width_, height_, "Fractol", true);
     if (!mlx_)
         throw std::runtime_error("mlx_init failed");
+        
+    mlx_set_window_limit(mlx_, 500 + 2 * OFFS, 500 + 2 * OFFS, -1, -1);
 
     img_ = mlx_new_image(mlx_, img_w_, img_h_);
     uint32_t scale_h = img_h_;
@@ -254,4 +257,51 @@ void App::draw() {
 
 void App::draw_scale() {
     renderer_.draw_scale(scale_, *fractal_);
+}
+
+void App::on_resize(int32_t width, int32_t height, void* param) {
+    static_cast<App*>(param)->handle_resize(width, height);
+}
+
+void App::handle_resize(int32_t width, int32_t height) {
+    uint32_t available_w = width - 2 * OFFS;
+    uint32_t available_h = height - 2 * OFFS;
+    uint32_t size = std::max(500u, std::min(available_w, available_h));
+
+    int32_t x = (width - size) / 2;
+    int32_t y = (height - size) / 2;
+
+    if (size != img_w_) {
+        // Update dimensions and maintain the view center by moving the anchor
+        img_w_ = size;
+        img_h_ = size;
+        anchor_.x = size / 2;
+        anchor_.y = size / 2;
+        
+        // Resize internal pixel buffers
+        mlx_resize_image(img_, img_w_, img_h_);
+        mlx_resize_image(scale_, OFFS / 2, img_h_);
+    }
+
+    // Reposition instances
+    img_->instances[0].x = x;
+    img_->instances[0].y = y;
+    scale_->instances[0].x = x - OFFS * 3 / 4;
+    scale_->instances[0].y = y;
+
+    // Shift all individual characters in the instruction text
+    int32_t text_x = x;
+    int32_t text_y = y + img_h_ + OFFS / 4;
+    int32_t diff_x = text_x - text_->instances[0].x;
+    int32_t diff_y = text_y - text_->instances[0].y;
+    for (size_t i = 0; i < text_->count; ++i) {
+        text_->instances[i].x += diff_x;
+        text_->instances[i].y += diff_y;
+    }
+
+    width_ = width;
+    height_ = height;
+
+    draw_scale();
+    draw();
 }
