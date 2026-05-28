@@ -224,13 +224,16 @@ void App::pan(Direction dir) {
 void App::zoom(double delta, int32_t x, int32_t y) {
     uint32_t xp, yp;
 
-    if (static_cast<uint32_t>(x) > OFFS && static_cast<uint32_t>(x) < OFFS + img_w_)
-        xp = x - OFFS;
+    int32_t img_x = img_->instances[0].x;
+    int32_t img_y = img_->instances[0].y;
+
+    if (x >= img_x && x < img_x + static_cast<int32_t>(img_w_))
+        xp = x - img_x;
     else
         xp = img_w_ / 2;
 
-    if (static_cast<uint32_t>(y) > OFFS && static_cast<uint32_t>(y) < OFFS + img_h_)
-        yp = y - OFFS;
+    if (y >= img_y && y < img_y + static_cast<int32_t>(img_h_))
+        yp = y - img_y;
     else
         yp = img_h_ / 2;
 
