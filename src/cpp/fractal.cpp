@@ -139,8 +139,14 @@ uint32_t Newton::iterate(Complex z) const {
 void Newton::init_colors() {
     uint32_t size = (max_iters + 1) * 3;
     colors.resize(size);
+    
+    double max_log = std::log(max_iters + 1.0);
+
     for (uint32_t i = 0; i < size; i += 3) {
-        uint32_t depth = (i / 3) * 255 / max_iters;
+        uint32_t iter = i / 3;
+        double normalized = std::log(iter + 1.0) / max_log;
+        uint32_t depth = static_cast<uint32_t>(normalized * 255);
+        
         colors[i]     = ((255 - depth) << 24 | 0xFF);       // red channel
         colors[i + 1] = ((255 - depth) << 16 | 0xFF);       // green channel
         colors[i + 2] = ((255 - depth) << 8  | 0xFF);       // blue channel
