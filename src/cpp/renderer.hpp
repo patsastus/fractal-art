@@ -13,8 +13,7 @@ public:
     // Public API — accepts the base class, dispatches once per frame
     void draw(mlx_image_t* img, const Fractal& fractal, const Anchor& anchor,
               uint32_t width, uint32_t height);
-    void draw_scale(mlx_image_t* scale_img, const Fractal& fractal,
-                    uint32_t img_h);
+    void draw_scale(mlx_image_t* scale_img, const Fractal& fractal);
     void cycle_colors(Fractal& fractal);
 
 private:

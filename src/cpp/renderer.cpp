@@ -11,17 +11,16 @@ void Renderer::draw(mlx_image_t* img, const Fractal& fractal,
         draw_impl(img, *n, anchor, width, height);
 }
 
-void Renderer::draw_scale(mlx_image_t* scale_img, const Fractal& fractal,
-                           uint32_t img_h) {
+void Renderer::draw_scale(mlx_image_t* scale_img, const Fractal& fractal) {
     size_t palette_size = fractal.colors.size();
     if (palette_size == 0) return;
 
     uint32_t scale_w = scale_img->width;
-    uint32_t height = (img_h / palette_size) * palette_size;
+    uint32_t height = scale_img->height;
 
     for (uint32_t x = 0; x < scale_w; ++x) {
         for (uint32_t y = 0; y < height; ++y) {
-            size_t i = y * palette_size / height;
+            size_t i = (y * palette_size) / height;
             mlx_put_pixel(scale_img, x, y, fractal.colors[i]);
         }
     }
