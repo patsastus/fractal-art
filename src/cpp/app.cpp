@@ -85,7 +85,7 @@ void App::init_mlx() {
         throw std::runtime_error("mlx_init failed");
 
     img_ = mlx_new_image(mlx_, img_w_, img_h_);
-    uint32_t scale_h = (img_h_ / fractal_->colors.size()) * fractal_->colors.size();
+    uint32_t scale_h = img_h_;
     scale_ = mlx_new_image(mlx_, OFFS / 2, scale_h);
 
     const char* instructions = "View control: arrow keys, 'r' to reset. Loop colors: 'a'";
@@ -253,5 +253,5 @@ void App::draw() {
 }
 
 void App::draw_scale() {
-    renderer_.draw_scale(scale_, *fractal_, img_h_);
+    renderer_.draw_scale(scale_, *fractal_);
 }
