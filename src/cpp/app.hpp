@@ -52,12 +52,14 @@ private:
     // Callbacks (static trampolines → member functions)
     static void on_key(mlx_key_data_t keydata, void* param);
     static void on_scroll(double xd, double yd, void* param);
+    static void on_resize(int32_t width, int32_t height, void* param);
     static void on_loop(void* param);
     static void on_close(void* param);
 
     // Input handling
     void handle_key(mlx_key_data_t keydata);
     void handle_scroll(double ydelta, int32_t x, int32_t y);
+    void handle_resize(int32_t width, int32_t height);
     void pan(Direction dir);
     void zoom(double delta, int32_t x, int32_t y);
     void reset_view();
