@@ -330,6 +330,16 @@ void App::handle_resize(int32_t width, int32_t height) {
         text_->instances[i].y += diff_y;
     }
 
+    // Shift time text as well
+    int32_t time_text_x = x;
+    int32_t time_text_y = y - OFFS / 2;
+    int32_t time_diff_x = time_text_x - time_text_->instances[0].x;
+    int32_t time_diff_y = time_text_y - time_text_->instances[0].y;
+    for (size_t i = 0; i < time_text_->count; ++i) {
+        time_text_->instances[i].x += time_diff_x;
+        time_text_->instances[i].y += time_diff_y;
+    }
+
     width_ = width;
     height_ = height;
 
