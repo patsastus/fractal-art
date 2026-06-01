@@ -67,18 +67,20 @@ export class Controls {
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       
-      // Shift anchor to mouse position
+      // Complex coordinate of the mouse before zoom
       const mouseRe = this.state.anchorX + (x - this.canvas.width / 2.0) * this.state.pxStep;
       const mouseIm = this.state.anchorY - (y - this.canvas.height / 2.0) * this.state.pxStep;
       
-      this.state.anchorX = mouseRe;
-      this.state.anchorY = mouseIm;
-      
+      // Update zoom level
       if (delta > 0 && this.state.pxStep < 1000.0) {
         this.state.pxStep *= zoomFactor;
       } else if (delta < 0 && this.state.pxStep > 1e-15) {
         this.state.pxStep *= (2.0 - zoomFactor);
       }
+      
+      // Adjust anchor so that the mouse points to the exact same complex coordinate
+      this.state.anchorX = mouseRe - (x - this.canvas.width / 2.0) * this.state.pxStep;
+      this.state.anchorY = mouseIm + (y - this.canvas.height / 2.0) * this.state.pxStep;
       
       this.onStateChange();
     }, { passive: false });
