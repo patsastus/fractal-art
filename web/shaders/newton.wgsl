@@ -103,12 +103,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
     }
 
     // Palette index: root * max_iters + iter
-    var shifted_iter = iter;
-    if (iter < params.max_iters) {
-        shifted_iter = (iter + params.color_offset) % params.max_iters;
-    }
-    
-    var palette_idx = root * params.max_iters + shifted_iter;
+    var palette_idx = root * params.max_iters + iter;
     if (root == 4u || iter >= params.max_iters) {
         palette_idx = params.max_iters * 3u; // black
     }

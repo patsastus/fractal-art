@@ -48,6 +48,7 @@ export class UI {
       const val = parseInt(e.target.value, 10);
       this.iterVal.textContent = val;
       this.controls.state.maxIters = val;
+      this.controls.state.colorOffset = 0; // Reset animation to prevent unpredictable modulo jumps
       this.updatePalette();
       this.controls.onStateChange();
     });
