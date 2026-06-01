@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>WebGPU Fractol</title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <!-- Main rendering canvas -->
+    <canvas id="fractal-canvas"></canvas>
+
+    <!-- Overlay UI -->
+    <div id="ui-overlay">
+      <!-- Top Bar: Fractal Selection -->
+      <div class="panel top-panel">
+        <div class="tabs">
+          <button class="tab-btn active" data-type="mandelbrot">Mandelbrot</button>
+          <button class="tab-btn" data-type="julia">Julia</button>
+          <button class="tab-btn" data-type="newton">Newton</button>
+        </div>
+      </div>
+
+      <!-- Bottom Bar: Controls & Stats -->
+      <div class="panel bottom-panel">
+        <div class="control-row">
+          <label>Iterations: <span id="iter-val">100</span></label>
+          <input type="range" id="iter-slider" min="10" max="2000" value="100" />
+        </div>
+
+        <div id="julia-controls" class="control-row hidden">
+          <label>Julia C (re):</label>
+          <input type="number" id="julia-re" value="-0.4" step="0.05" />
+          <label>(im):</label>
+          <input type="number" id="julia-im" value="0.6" step="0.05" />
+        </div>
+
+        <div class="control-row stats-row">
+          <span class="stat">Zoom: <span id="zoom-val">1.00x</span></span>
+          <span class="stat">FPS: <span id="fps-val">60</span></span>
+          <span class="stat">GPU Time: <span id="gpu-time-val">-- ms</span></span>
+          <div class="button-group">
+            <button id="btn-animate" class="action-btn">Animate Colors [A]</button>
+            <button id="btn-reset" class="action-btn">Reset View [R]</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Error Screen (e.g., WebGPU not supported) -->
+    <div id="error-screen" class="hidden">
+      <h1>WebGPU Not Supported</h1>
+      <p>Your browser does not support WebGPU. Please try Chrome, Edge, or a supported browser.</p>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
