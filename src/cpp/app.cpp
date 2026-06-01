@@ -47,6 +47,7 @@ App::App(int argc, char** argv) {
     fractal_->init_colors();
     init_mlx();
     init_anchor();
+    gpu_renderer_ = std::make_unique<GpuRenderer>(img_w_, img_h_);
 }
 
 App::~App() {
@@ -91,10 +92,11 @@ void App::init_mlx() {
     uint32_t scale_h = img_h_;
     scale_ = mlx_new_image(mlx_, OFFS / 2, scale_h);
 
-    const char* instructions = "View control: arrow keys, 'r' to reset. Loop colors: 'a'";
+    const char* instructions = "View control: arrow keys, 'r' to reset. Loop colors: 'a', GPU toggle: 'g'";
     text_ = mlx_put_string(mlx_, instructions, OFFS, img_h_ + OFFS * 5 / 4);
+    time_text_ = mlx_put_string(mlx_, "Mode: GPU | Time: -- ms", OFFS, OFFS / 2);
 
-    if (!img_ || !scale_ || !text_)
+    if (!img_ || !scale_ || !text_ || !time_text_)
         throw std::runtime_error("Failed to create images");
 }
 
@@ -182,6 +184,9 @@ void App::handle_key(mlx_key_data_t keydata) {
         case MLX_KEY_A:
             fractal_->looping = !fractal_->looping;
             return;
+        case MLX_KEY_G:
+            use_gpu_ = !use_gpu_;
+            break;
         case MLX_KEY_R:
             reset_view();
             break;
@@ -219,13 +224,16 @@ void App::pan(Direction dir) {
 void App::zoom(double delta, int32_t x, int32_t y) {
     uint32_t xp, yp;
 
-    if (static_cast<uint32_t>(x) > OFFS && static_cast<uint32_t>(x) < OFFS + img_w_)
-        xp = x - OFFS;
+    int32_t img_x = img_->instances[0].x;
+    int32_t img_y = img_->instances[0].y;
+
+    if (x >= img_x && x < img_x + static_cast<int32_t>(img_w_))
+        xp = x - img_x;
     else
         xp = img_w_ / 2;
 
-    if (static_cast<uint32_t>(y) > OFFS && static_cast<uint32_t>(y) < OFFS + img_h_)
-        yp = y - OFFS;
+    if (y >= img_y && y < img_y + static_cast<int32_t>(img_h_))
+        yp = y - img_y;
     else
         yp = img_h_ / 2;
 
@@ -252,7 +260,30 @@ void App::reset_view() {
 // ============================================================================
 
 void App::draw() {
-    renderer_.draw(img_, *fractal_, anchor_, img_w_, img_h_);
+    auto start = std::chrono::high_resolution_clock::now();
+
+    if (use_gpu_ && gpu_renderer_) {
+        if (auto m = dynamic_cast<Mandelbrot*>(fractal_.get())) {
+            gpu_renderer_->render_mandelbrot(anchor_, *m);
+        } else if (auto j = dynamic_cast<Julia*>(fractal_.get())) {
+            gpu_renderer_->render_julia(anchor_, *j);
+        } else if (auto n = dynamic_cast<Newton*>(fractal_.get())) {
+            gpu_renderer_->render_newton(anchor_, *n);
+        }
+        gpu_renderer_->copy_to_image(img_);
+    } else {
+        renderer_.draw(img_, *fractal_, anchor_, img_w_, img_h_);
+    }
+
+    auto end = std::chrono::high_resolution_clock::now();
+    double ms = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0;
+
+    if (time_text_) {
+        mlx_delete_image(mlx_, time_text_);
+    }
+    char buf[128];
+    snprintf(buf, sizeof(buf), "Mode: %s | Time: %.2f ms", use_gpu_ ? "GPU" : "CPU", ms);
+    time_text_ = mlx_put_string(mlx_, buf, OFFS, OFFS / 2);
 }
 
 void App::draw_scale() {
@@ -299,6 +330,15 @@ void App::handle_resize(int32_t width, int32_t height) {
         text_->instances[i].y += diff_y;
     }
 
+    // Shift time text as well
+    int32_t time_text_x = x;
+    int32_t time_text_y = y - OFFS / 2;
+    int32_t time_diff_x = time_text_x - time_text_->instances[0].x;
+    int32_t time_diff_y = time_text_y - time_text_->instances[0].y;
+    for (size_t i = 0; i < time_text_->count; ++i) {
+        time_text_->instances[i].x += time_diff_x;
+        time_text_->instances[i].y += time_diff_y;
+    }
     width_ = width;
     height_ = height;
 
