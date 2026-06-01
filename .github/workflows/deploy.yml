@@ -1,10 +1,10 @@
 name: Deploy WebGPU App to GitHub Pages
 
 on:
-  # Trigger the workflow on push to the webgpu-port branch
+  # Trigger the workflow on push to the main branch
   push:
     branches:
-      - webgpu-port
+      - main
   # Allow manual trigger from the Actions tab
   workflow_dispatch:
 
