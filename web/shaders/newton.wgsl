@@ -5,8 +5,12 @@ struct Params {
     max_iters: u32,
     width: u32,
     height: u32,
+    julia_re: f32,
+    julia_im: f32,
+    color_offset: u32,
     pad1: u32,
     pad2: u32,
+    pad3: u32,
 };
 
 @group(0) @binding(0) var<uniform> params: Params;
@@ -99,7 +103,12 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
     }
 
     // Palette index: root * max_iters + iter
-    var palette_idx = root * params.max_iters + iter;
+    var shifted_iter = iter;
+    if (iter < params.max_iters) {
+        shifted_iter = (iter + params.color_offset) % params.max_iters;
+    }
+    
+    var palette_idx = root * params.max_iters + shifted_iter;
     if (root == 4u || iter >= params.max_iters) {
         palette_idx = params.max_iters * 3u; // black
     }

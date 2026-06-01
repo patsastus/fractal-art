@@ -9,7 +9,8 @@ export class Controls {
       pxStep: 0.005,
       maxIters: 100,
       juliaRe: -0.4,
-      juliaIm: 0.6
+      juliaIm: 0.6,
+      colorOffset: 0
     };
 
     this.isDragging = false;

@@ -7,6 +7,10 @@ struct Params {
     height: u32,
     julia_re: f32,
     julia_im: f32,
+    color_offset: u32,
+    pad1: u32,
+    pad2: u32,
+    pad3: u32,
 };
 
 @group(0) @binding(0) var<uniform> params: Params;
@@ -50,6 +54,10 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
         }
     }
 
-    let color = unpack4x8unorm(palette[iter]);
+    var palette_idx = iter;
+    if (iter < params.max_iters) {
+        palette_idx = (iter + params.color_offset) % params.max_iters;
+    }
+    let color = unpack4x8unorm(palette[palette_idx]);
     textureStore(output_tex, vec2<i32>(i32(x), i32(y)), color);
 }

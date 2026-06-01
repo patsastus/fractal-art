@@ -21,8 +21,8 @@ export class Renderer {
     
     this.currentFractal = 'mandelbrot';
     
-    // Uniform data array: [anchor_re, anchor_im, px_step, max_iters, width, height, julia_re, julia_im]
-    this.uniformData = new Float32Array(8);
+    // Uniform data array: [anchor_re, anchor_im, px_step, max_iters, width, height, julia_re, julia_im, color_offset, pad, pad, pad]
+    this.uniformData = new Float32Array(12);
   }
 
   async init() {
@@ -76,9 +76,9 @@ export class Renderer {
   }
 
   initBuffers() {
-    // 8 floats = 32 bytes
+    // 12 floats = 48 bytes
     this.uniformBuffer = this.device.createBuffer({
-      size: 32,
+      size: 48,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
@@ -158,6 +158,7 @@ export class Renderer {
     
     this.uniformData[6] = state.juliaRe || 0.0;
     this.uniformData[7] = state.juliaIm || 0.0;
+    u32View[8] = state.colorOffset || 0;
 
     this.device.queue.writeBuffer(this.uniformBuffer, 0, this.uniformData);
   }

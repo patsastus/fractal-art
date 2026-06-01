@@ -70,10 +70,7 @@ function frame(now) {
   }
   
   if (isAnimating) {
-    // Basic color cycling via palette shifting
-    // (This requires regenerating the palette or shifting the buffer. 
-    // For simplicity, we just trigger a redraw to keep it active, 
-    // or we can implement real shifting in palette.js later)
+    controls.state.colorOffset = (controls.state.colorOffset + 1) % 100000;
     stateChanged = true; 
   }
   
