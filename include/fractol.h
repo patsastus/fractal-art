@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   fractol.h                                          :+:      :+:    :+:   */
+/*   fractol_bonus.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nraatika <nraatika@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/23 14:22:20 by nraatika          #+#    #+#             */
-/*   Updated: 2025/06/16 15:49:29 by nraatika         ###   ########.fr       */
+/*   Updated: 2025/06/16 16:22:07 by nraatika         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #ifndef FRACTOL_H
@@ -44,12 +44,14 @@ typedef struct s_fractal
 	uint32_t	max_iters;
 	uint32_t	*colors;
 	size_t		size;
+	char		looping;
 }	t_fractal;
 
 typedef struct s_data
 {
 	mlx_t			*mlx;
 	mlx_image_t		*img;
+	mlx_image_t		*color_scale;
 	mlx_image_t		*text;
 	t_fractal		f;
 	t_anchor		a;
@@ -99,7 +101,19 @@ void		handle_mouse(double xdelta, double ydelta, void *param);
 uint32_t	iter_mandelbrot(t_complex *z, t_fractal *f);
 void		init_mandelbrot(t_data *data);
 
+//newton.c
+uint32_t	iter_newton(t_complex *z, t_fractal *f);
+void		init_newton(t_data *data);
+char		newton_check(t_complex *z);
+void		make_colors_newton(t_fractal *f);
+
+//newton_utils.c
+void		comp_function(t_complex *res, t_complex *z);
+void		comp_deriv(t_complex *res, t_complex *z);
+
 //visuals.c
+void		make_scale(t_data *data);
+void		loop_colors(void *p);
 void		reset_view(void *p);
 void		make_text(t_data *data, int32_t x, int32_t y);
 void		draw_fractal(void *p);

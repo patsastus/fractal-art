@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <fractol_bonus.h>
+#include <fractol.h>
 
 //panning: updates anchor pixel to reflect change in view
 static void	update_pan(t_data *data, char direction)

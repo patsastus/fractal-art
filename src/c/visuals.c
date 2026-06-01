@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <fractol_bonus.h>
+#include <fractol.h>
 
 /*
 	BONUS: a function that gets hooked to the main mlx loop, enabled or disabled

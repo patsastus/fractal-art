@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   init.c                                             :+:      :+:    :+:   */
+/*   init_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nraatika <nraatika@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 10:42:03 by nraatika          #+#    #+#             */
-/*   Updated: 2025/06/16 15:50:16 by nraatika         ###   ########.fr       */
+/*   Updated: 2025/06/16 16:14:26 by nraatika         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ void	init_anchor(t_anchor *a, uint32_t x, uint32_t y, double scale)
 void	init_all(t_data *data)
 {
 	uint32_t	scale;
+	uint32_t	height;
 
 	data->mlx = mlx_init(data->width, data->height, "Fractol", false);
 	if ((data->mlx) == NULL)
@@ -38,12 +39,15 @@ void	init_all(t_data *data)
 		ft_exit((void *)data);
 	}
 	data->img = mlx_new_image(data->mlx, data->img_w, data->img_h);
+	height = (data->img_h / data->f.size) * data->f.size;
+	data->color_scale = mlx_new_image(data->mlx, OFFS / 2, height);
 	make_text(data, OFFS, data->img_h + OFFS * 5 / 4);
-	if (data->img == NULL || data->text == NULL)
+	if (data->img == NULL || data->color_scale == NULL || data->text == NULL)
 	{
 		data->error = 4;
 		ft_exit((void *)data);
 	}
+	make_scale(data);
 	scale = RESOLUTION - 2 * OFFS;
 	init_anchor(&(data->a), scale / 2, scale / 2, (data->f.r) * 3 / scale);
 }
@@ -69,6 +73,10 @@ void	parse_params(t_data *data, int argc, char **argv)
 	else if (argv[1][0] == 'm' || argv[1][0] == 'M')
 	{
 		init_mandelbrot(data);
+	}
+	else if (argv[1][0] == 'n' || argv[1][0] == 'N')
+	{
+		init_newton(data);
 	}
 	else
 		data->error = 1;
@@ -116,4 +124,5 @@ void	set_sizes(t_data *data)
 	data->f.max_iters = MAX_ITERS;
 	data->f.colors = NULL;
 	data->f.size = 0;
+	data->f.looping = 0;
 }
