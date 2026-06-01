@@ -1,0 +1,17 @@
+# Build artifacts
+build/
+MLX42/build/
+objs/
+fractol
+test
+check_sqrt
+
+# Plans
+plans/
+
+# VS Code / IDE
+.vscode/
+
+# Web / Node
+web/node_modules/
+web/dist/
