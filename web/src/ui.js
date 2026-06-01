@@ -38,6 +38,12 @@ export class UI {
           this.juliaControls.classList.add('hidden');
         }
         
+        if (type === 'newton') {
+          this.btnAnimate.classList.add('hidden');
+        } else {
+          this.btnAnimate.classList.remove('hidden');
+        }
+        
         this.renderer.setFractal(type);
         this.updatePalette();
         this.onResetView();
@@ -67,7 +73,9 @@ export class UI {
     
     // Keyboard shortcuts
     window.addEventListener('keydown', (e) => {
-      if (e.key.toLowerCase() === 'a') this.onAnimateToggle();
+      if (e.key.toLowerCase() === 'a' && this.renderer.currentFractal !== 'newton') {
+        this.onAnimateToggle();
+      }
       if (e.key.toLowerCase() === 'r') this.onResetView();
     });
   }
