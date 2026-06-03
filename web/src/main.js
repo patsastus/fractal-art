@@ -71,7 +71,7 @@ function frame(now) {
     lastTime = now;
   }
 
-  if (isAnimating && frameCount % 10 === 0) {
+  if (isAnimating && frameCount % 60 === 0) {
     controls.state.colorOffset = (controls.state.colorOffset + 1) % 100000;
     stateChanged = true;
   }
