@@ -30,30 +30,30 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: 'npm'
-          cache-dependency-path: 'web/package-lock.json'
-          
+          cache: "npm"
+          cache-dependency-path: "web/package-lock.json"
+
       - name: Install Dependencies
         working-directory: ./web
         run: npm ci
-        
+
       - name: Build Web App
         working-directory: ./web
         run: npm run build
-        
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
-        
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
-          path: './web/dist'
+          path: "./web/dist"
 
   deploy:
     name: Deploy
