@@ -34,8 +34,8 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
         iter = 0u;
     } else {
         let c_re = params.julia_re;
-        let c_im = -params.julia_im; // Mirroring the C++ logic (c_im is negated)
-        
+        let c_im = -params.julia_im;
+
         // One iteration before loop to match C++ perfectly:
         let t_re = z_re * z_re - z_im * z_im + c_re;
         let t_im = 2.0 * z_re * z_im + c_im;

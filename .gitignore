@@ -9,6 +9,7 @@ check_sqrt
 
 # Plans
 plans/
+plans/** merge=ours
 
 # VS Code / IDE
 .vscode/
