@@ -1,0 +1,19 @@
+# Build artifacts
+build/
+MLX42/build/
+objs/
+fractol
+test
+check_sqrt
+*.out
+
+# Plans
+plans/
+
+# VS Code / IDE
+.vscode/
+.antigravitycli
+
+# Web / Node
+web/node_modules/
+web/dist/
